@@ -4,12 +4,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'dart:convert';
+import 'package:app/config/config.dart'; // Import the config file
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
@@ -72,7 +72,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     try {
       var response = await http.post(
-        Uri.parse('your_registration_api_endpoint_here'),
+        Uri.parse(registration), // Using the base URL from config.dart
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(regBody),
       );
