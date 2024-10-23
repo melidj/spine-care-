@@ -1,8 +1,25 @@
 import 'package:app/screen/imageanalyzing.dart';
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
-class UploadImageScreen extends StatelessWidget {
-  const UploadImageScreen({super.key});
+class UploadImageScreen extends StatefulWidget {
+  final String token;
+
+  const UploadImageScreen({required this.token, Key? key}) : super(key: key);
+
+  @override
+  State<UploadImageScreen> createState() => _UploadImageScreen();
+}
+
+class _UploadImageScreen extends State<UploadImageScreen> {
+  late String email;
+
+  @override
+  void initState() {
+    super.initState();
+    Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
+    email = jwtDecodedToken['email'];
+  }
 
   @override
   Widget build(BuildContext context) {

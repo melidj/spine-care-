@@ -2,7 +2,7 @@ import 'package:app/screen/imageupload.dart';
 import 'package:app/screen/login.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import "package:http/http.dart" as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:app/config/config.dart'; // Import the config file
 
@@ -14,7 +14,6 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -23,7 +22,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
@@ -36,8 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void registerUser() async {
-    if (nameController.text.isEmpty ||
-        emailController.text.isEmpty ||
+    if (emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
       setState(() {
@@ -64,8 +61,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _isNotValidate = false; // Reset validation state
     });
 
-    var regBody = {
-      "name": nameController.text,
+    var reqBody = {
       "email": emailController.text,
       "password": passwordController.text,
     };
@@ -74,14 +70,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
       var response = await http.post(
         Uri.parse(registration), // Using the base URL from config.dart
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(regBody),
+        body: jsonEncode(reqBody),
       );
 
       var jsonResponse = jsonDecode(response.body);
+
       if (jsonResponse['status']) {
+        String token = jsonResponse[
+            'token']; // Assuming the token is returned in the response
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const UploadImageScreen()),
+          MaterialPageRoute(
+            builder: (context) => UploadImageScreen(
+                token: token), // Pass the token to UploadImageScreen
+          ),
         );
       } else {
         print("Registration failed: ${jsonResponse['message']}");
@@ -122,14 +124,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             const SizedBox(height: 50),
 
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-              ),
-            ),
-            const SizedBox(height: 30),
             TextField(
               controller: emailController,
               decoration: InputDecoration(

@@ -36,7 +36,8 @@ dependencies:
   pdf: ^3.6.0
   path_provider: ^2.0.10
   fluttertoast: ^8.0.9
-  
+  shared_preferences: 
+  jwt_decoder:
 
 
   # The following adds the Cupertino Icons font to your application.

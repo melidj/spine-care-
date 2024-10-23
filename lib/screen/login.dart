@@ -1,10 +1,11 @@
+import 'dart:convert';
+import "package:http/http.dart" as http;
+import 'package:app/config/config.dart';
 import 'package:app/screen/imageupload.dart';
 import 'package:app/screen/signup.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:app/config/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +19,41 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool _isNotValidate = false;
 
+  late SharedPreferences prefs;
+
+  void loginUser() async {
+    if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      var reqBody = {
+        "email": emailController.text,
+        "password": passwordController.text,
+      };
+
+      var response = await http.post(
+        Uri.parse(login), // Using the base URL from config.dart
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(reqBody),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print(
+          'Response body: ${response.body}'); // Log response body for debugging
+
+      var jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse['status']) {
+        var myToken = jsonResponse['token'];
+        prefs.setString('token', myToken);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UploadImageScreen(token: myToken)));
+      } else {
+        print(
+            'Something Went Wrong: ${jsonResponse['message']}'); // Update to show error message
+      }
+    }
+  }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -25,12 +61,22 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    initSharedPref(); // Move this to initState
+  }
+
+  void initSharedPref() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
   bool isValidEmail(String email) {
     final RegExp emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     return emailRegex.hasMatch(email);
   }
 
-  void loginUser() async {
+  void validateLogin() {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       setState(() {
         _isNotValidate = true;
@@ -40,59 +86,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!isValidEmail(emailController.text)) {
       setState(() {
-        _isNotValidate = true; // Optionally customize this for specific errors
+        _isNotValidate = true;
       });
       return;
     }
 
     setState(() {
-      _isNotValidate = false; // Reset validation state
+      _isNotValidate = false;
     });
-
-    var loginBody = {
-      "email": emailController.text,
-      "password": passwordController.text,
-    };
-
-    try {
-      var response = await http.post(
-        Uri.parse('http://192.168.43.46:3000/login'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(loginBody),
-      );
-
-      var jsonResponse = jsonDecode(response.body);
-      if (jsonResponse['status']) {
-        // Login successful, navigate to UploadImageScreen
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const UploadImageScreen()),
-        );
-      } else {
-        // Login failed, show error message
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Login Failed'),
-              content: const Text(
-                  'Invalid email or password. Please sign up if you don\'t have an account.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (e) {
-      print("Error occurred: $e");
-      // Optionally show an error message to the user
-    }
   }
 
   @override
@@ -162,7 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // Login Button
             ElevatedButton(
-              onPressed: loginUser,
+              onPressed: () {
+                loginUser();
+              },
               style: ElevatedButton.styleFrom(
                 fixedSize: const Size(200, 50), // Width: 200, Height: 50
                 textStyle: const TextStyle(fontSize: 20), // Button text size
@@ -190,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: const TextStyle(color: Colors.blue, fontSize: 16),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                      //Navigate to Sign Up screen when 'Sign Up' text is clicked
+                      // Navigate to Sign Up screen when 'Sign Up' text is clicked
                       Navigator.push(
                         context,
                         MaterialPageRoute(
