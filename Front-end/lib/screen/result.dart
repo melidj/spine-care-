@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:app/screen/firstaid.dart';
+import 'package:http/http.dart' as http;
 
 class DiagnosisResultScreen extends StatelessWidget {
   const DiagnosisResultScreen({super.key});
@@ -44,6 +46,27 @@ class DiagnosisResultScreen extends StatelessWidget {
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  Future<String> predictSpine(String imagePath) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('http://localhost:5001/predict'));
+    request.files.add(await http.MultipartFile.fromPath('image', imagePath));
+    request.fields['modelChoice'] = 'model1'; // or 'model2'
+
+    // Send the request and get the response
+    var response = await request.send();
+
+    // Check the response status and read the body
+    if (response.statusCode == 200) {
+      // Convert StreamedResponse to String
+      var responseString = await response.stream.bytesToString();
+      var jsonResponse = jsonDecode(responseString);
+      return jsonResponse['result'];
+    } else {
+      // Handle error
+      return 'Error occurred: ${response.statusCode}';
+    }
   }
 
   @override

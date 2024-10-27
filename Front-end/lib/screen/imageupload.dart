@@ -1,5 +1,8 @@
+import 'dart:typed_data';
 import 'package:app/screen/imageanalyzing.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class UploadImageScreen extends StatefulWidget {
@@ -13,12 +16,53 @@ class UploadImageScreen extends StatefulWidget {
 
 class _UploadImageScreen extends State<UploadImageScreen> {
   late String email;
+  Uint8List?
+      _imageBytes; // Store the image bytes for cross-platform compatibility
 
   @override
   void initState() {
     super.initState();
     Map<String, dynamic> jwtDecodedToken = JwtDecoder.decode(widget.token);
     email = jwtDecodedToken['email'];
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final imageBytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageBytes = imageBytes;
+      });
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_imageBytes == null) return;
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:5001/predict'),
+    );
+
+    request.files.add(
+      http.MultipartFile.fromBytes('file', _imageBytes!,
+          filename: 'upload.jpg'),
+    );
+
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final respStr = await response.stream.bytesToString();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageAnalyzeScreen(result: respStr),
+        ),
+      );
+    } else {
+      print('Upload failed with status: ${response.statusCode}');
+    }
   }
 
   @override
@@ -62,11 +106,8 @@ class _UploadImageScreen extends State<UploadImageScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            // Upload Image Box
             GestureDetector(
-              onTap: () {
-                // Handle image selection logic here
-              },
+              onTap: _pickImage,
               child: Container(
                 height: 200,
                 width: double.infinity,
@@ -75,17 +116,22 @@ class _UploadImageScreen extends State<UploadImageScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.blue, width: 2),
                 ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.image, size: 50, color: Colors.grey),
-                    SizedBox(height: 10),
-                    Text(
-                      'Select file',
-                      style: TextStyle(color: Colors.grey, fontSize: 18),
-                    ),
-                  ],
-                ),
+                child: _imageBytes == null
+                    ? const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.image, size: 50, color: Colors.grey),
+                          SizedBox(height: 10),
+                          Text(
+                            'Select file',
+                            style: TextStyle(color: Colors.grey, fontSize: 18),
+                          ),
+                        ],
+                      )
+                    : Image.memory(
+                        _imageBytes!,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
             const SizedBox(height: 20),
@@ -100,7 +146,6 @@ class _UploadImageScreen extends State<UploadImageScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            // Open Camera Button
             OutlinedButton.icon(
               onPressed: () {
                 // Logic to open the camera goes here
@@ -117,28 +162,14 @@ class _UploadImageScreen extends State<UploadImageScreen> {
               ),
             ),
             const SizedBox(height: 50),
-            // Continue Button
             ElevatedButton(
-              onPressed: () {
-                // Navigation to the next screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ImageAnalyzeScreen(),
-                  ),
-                );
-              },
+              onPressed: _uploadImage,
               style: ElevatedButton.styleFrom(
-                // Set the button size
-                fixedSize: const Size(200, 50), // Width: 200, Height: 50
-                // Set the button background color
-                backgroundColor: Colors.blue, // Button background color
-                // Set the text color and size
-                textStyle: const TextStyle(fontSize: 20), // Button text size
-                // Set button shape (rounded corners)
+                fixedSize: const Size(200, 50),
+                backgroundColor: Colors.blue,
+                textStyle: const TextStyle(fontSize: 20),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(30), // Rounded corner radius
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
               child: const Text(

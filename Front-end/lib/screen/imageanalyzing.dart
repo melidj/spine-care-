@@ -2,7 +2,7 @@ import 'package:app/screen/successfullyuploadedimage.dart';
 import 'package:flutter/material.dart';
 
 class ImageAnalyzeScreen extends StatelessWidget {
-  const ImageAnalyzeScreen({super.key});
+  const ImageAnalyzeScreen({super.key, required String result});
 
   @override
   Widget build(BuildContext context) {
