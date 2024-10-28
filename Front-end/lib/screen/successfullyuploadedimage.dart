@@ -1,9 +1,13 @@
-import 'package:app/screen/result.dart';
 import 'package:app/screen/imageupload.dart';
+import 'package:app/screen/result.dart';
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
 class UploadSuccessScreen extends StatelessWidget {
-  const UploadSuccessScreen({super.key});
+  final Uint8List? _imageBytes;
+
+  const UploadSuccessScreen({super.key, required Uint8List? imageBytes})
+      : _imageBytes = imageBytes;
 
   @override
   Widget build(BuildContext context) {
@@ -23,121 +27,122 @@ class UploadSuccessScreen extends StatelessWidget {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Image Uploaded Successfully!',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+      body: Center(
+        // Center the entire column
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Minimize Column height
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Center horizontally
+            children: [
+              const Text(
+                'Image Uploaded Successfully!',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            // Uploaded Image Preview
-            Container(
-              height: 400,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blue, width: 2),
-                image: const DecorationImage(
-                  image: AssetImage(
-                      'assets/sample_mri.jpg'), // Replace with your image path
-                  fit: BoxFit.cover,
+              const SizedBox(height: 30),
+              Container(
+                height: 400,
+                width: 320,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  border: Border.all(color: Colors.blue, width: 2),
+                  image: _imageBytes != null
+                      ? DecorationImage(
+                          image: MemoryImage(_imageBytes!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
-            // View Result Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to the result screen
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DiagnosisResultScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(200, 50), // Width: 200, Height: 50
-                textStyle: const TextStyle(fontSize: 20), // Button text size
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: const Text(
-                'View Result',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 10),
-            // Upload Another Photo Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigation to the next screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UploadImageScreen(
-                      token: 'myToken',
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DiagnosisResultScreen(
+                        imageBytes: _imageBytes,
+                        resultData: {},
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  fixedSize: const Size(200, 50),
+                  textStyle: const TextStyle(fontSize: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(200, 50),
-                textStyle: const TextStyle(fontSize: 20), // Button text size
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                child: const Text(
+                  'View Result',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
-              child: const Text(
-                'Upload Photo',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 10),
-            // Cancel Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigation to the next screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UploadImageScreen(
-                      token: '',
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UploadImageScreen(
+                        token: '',
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  fixedSize: const Size(200, 50),
+                  textStyle: const TextStyle(fontSize: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(200, 50),
-                textStyle: const TextStyle(fontSize: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                child: const Text(
+                  'Upload Photo',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UploadImageScreen(
+                        token: '',
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  fixedSize: const Size(200, 50),
+                  textStyle: const TextStyle(fontSize: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

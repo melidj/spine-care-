@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'package:app/screen/imageanalyzing.dart';
+import 'package:app/screen/successfullyuploadedimage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class UploadImageScreen extends StatefulWidget {
@@ -35,33 +35,6 @@ class _UploadImageScreen extends State<UploadImageScreen> {
       setState(() {
         _imageBytes = imageBytes;
       });
-    }
-  }
-
-  Future<void> _uploadImage() async {
-    if (_imageBytes == null) return;
-
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('http://localhost:5001/predict'),
-    );
-
-    request.files.add(
-      http.MultipartFile.fromBytes('file', _imageBytes!,
-          filename: 'upload.jpg'),
-    );
-
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      final respStr = await response.stream.bytesToString();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ImageAnalyzeScreen(result: respStr),
-        ),
-      );
-    } else {
-      print('Upload failed with status: ${response.statusCode}');
     }
   }
 
@@ -163,7 +136,28 @@ class _UploadImageScreen extends State<UploadImageScreen> {
             ),
             const SizedBox(height: 50),
             ElevatedButton(
-              onPressed: _uploadImage,
+              onPressed: () async {
+                // Navigate to the image analyzing page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ImageAnalyzeScreen(
+                            result: '',
+                          )),
+                );
+
+                // Wait for 3 seconds
+                await Future.delayed(const Duration(seconds: 3));
+
+                // Navigate to the successfully uploaded image page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UploadSuccessScreen(
+                            imageBytes: null,
+                          )),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 fixedSize: const Size(200, 50),
                 backgroundColor: Colors.blue,

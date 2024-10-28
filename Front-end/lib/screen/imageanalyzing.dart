@@ -1,4 +1,3 @@
-import 'package:app/screen/successfullyuploadedimage.dart';
 import 'package:flutter/material.dart';
 
 class ImageAnalyzeScreen extends StatelessWidget {
@@ -28,19 +27,7 @@ class ImageAnalyzeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Display the MRI/X-ray Image
-            Container(
-              height: 400,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blue, width: 2),
-                image: const DecorationImage(
-                  image: AssetImage(
-                      'assets/sample_mri.jpg'), // Replace with your image path
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
+
             const SizedBox(height: 20),
             const Text(
               'Your image is being analyzed. This may take a few moments.',
@@ -75,32 +62,6 @@ class ImageAnalyzeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Continue Button (Remove after editing)
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to the next page with the analyzed image result
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UploadSuccessScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                fixedSize: const Size(200, 50),
-                textStyle: const TextStyle(fontSize: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: const Text(
-                'Continue',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
           ],
         ),
       ),
