@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 
 class UploadImageScreen extends StatefulWidget {
   final String token;
@@ -60,7 +59,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
     // Create a multipart request with the image bytes
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://127.0.0.1:5000/predict'),
+      Uri.parse('http://192.168.43.46:5000/predict'),
     );
 
     if (kIsWeb) {
@@ -75,19 +74,35 @@ class _UploadImageScreen extends State<UploadImageScreen> {
     }
 
     // Send the request and handle the response
-    var response = await request.send();
-    if (response.statusCode == 200) {
-      final responseData = await http.Response.fromStream(response);
-      Map<String, dynamic> resultData = jsonDecode(responseData.body);
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await http.Response.fromStream(response);
+        print("Raw Server Response: ${responseData.body}"); // Log response data
 
+        try {
+          Map<String, dynamic> resultData = jsonDecode(responseData.body);
+          setState(() {
+            result = "Diagnosis Results:";
+            probabilities = resultData; // Store result probabilities to display
+          });
+        } catch (e) {
+          setState(() {
+            result = "Error decoding JSON: $e";
+          });
+          print("JSON Decoding Error: $e");
+        }
+      } else {
+        setState(() {
+          result =
+              "Failed to retrieve result from server: ${response.statusCode}";
+        });
+      }
+    } catch (e) {
       setState(() {
-        result = "Diagnosis Results:";
-        probabilities = resultData; // Store result probabilities to display
+        result = "Failed to retrieve result: $e";
       });
-    } else {
-      setState(() {
-        result = "Failed to retrieve result from server";
-      });
+      print("Network/Other Error: $e");
     }
   }
 
@@ -194,9 +209,9 @@ class _UploadImageScreen extends State<UploadImageScreen> {
                 ElevatedButton(
                   onPressed: _showResult,
                   style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(200, 50), // Width: 200, Height: 50
+                    fixedSize: const Size(150, 50), // Width: 200, Height: 50
                     textStyle:
-                        const TextStyle(fontSize: 20), // Button text size
+                        const TextStyle(fontSize: 16), // Button text size
                     backgroundColor: Colors.blue, // Button background color
                     shape: RoundedRectangleBorder(
                       borderRadius:
@@ -252,7 +267,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
                 ),
               ),
 
-            const SizedBox(height: 180),
+            const SizedBox(height: 50),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -264,7 +279,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
               },
               style: ElevatedButton.styleFrom(
                 fixedSize: const Size(200, 50), // Width: 200, Height: 50
-                textStyle: const TextStyle(fontSize: 20), // Button text size
+                textStyle: const TextStyle(fontSize: 16), // Button text size
                 backgroundColor: Colors.blue, // Button background color
                 shape: RoundedRectangleBorder(
                   borderRadius:

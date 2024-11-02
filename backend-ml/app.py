@@ -6,8 +6,11 @@ import io
 import numpy as np
 import torch.nn as nn
 from torchvision import models
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app) 
 
 # Define the SpineClassifier model
 class SpineClassifier(nn.Module):
@@ -57,5 +60,5 @@ def classify_spine():
     results = {class_names[i]: float(probabilities[i]) for i in range(len(class_names))}
     return jsonify(results)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
