@@ -21,6 +21,8 @@ class _UploadImageScreen extends State<UploadImageScreen> {
   File? _image;
   Uint8List? _webImage; // For storing the image bytes on web
   String result = "";
+  String condition = "";
+  String detail = "";
   Map<String, dynamic>? probabilities;
 
   @override
@@ -84,7 +86,9 @@ class _UploadImageScreen extends State<UploadImageScreen> {
           Map<String, dynamic> resultData = jsonDecode(responseData.body);
           setState(() {
             result = "Diagnosis Results:";
-            probabilities = resultData; // Store result probabilities to display
+            condition = resultData['condition'] ?? "";
+            detail = resultData['detail'] ?? "";
+            probabilities = resultData['predictions']; // Store predictions
           });
         } catch (e) {
           setState(() {
@@ -125,7 +129,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
           },
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -134,7 +138,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
             const Text(
               'Upload a photo of your X-ray/MRI',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
@@ -143,7 +147,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
             const Text(
               'Upload a photo of your X-ray/MRI for the most accurate diagnosis. '
               'You can also take a picture, but this may result in lower accuracy.',
-              style: TextStyle(fontSize: 8, color: Colors.black54),
+              style: TextStyle(fontSize: 12, color: Colors.black54),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
@@ -209,13 +213,11 @@ class _UploadImageScreen extends State<UploadImageScreen> {
                 ElevatedButton(
                   onPressed: _showResult,
                   style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(150, 50), // Width: 200, Height: 50
-                    textStyle:
-                        const TextStyle(fontSize: 16), // Button text size
-                    backgroundColor: Colors.blue, // Button background color
+                    fixedSize: const Size(100, 30), // Width, Height
+                    textStyle: const TextStyle(fontSize: 16),
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(30), // Rounded corner radius
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: const Text(
@@ -246,6 +248,15 @@ class _UploadImageScreen extends State<UploadImageScreen> {
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
+                    const SizedBox(height: 10),
+                    if (condition.isNotEmpty)
+                      Text("Condition: $condition",
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold)),
+                    if (detail.isNotEmpty)
+                      Text("Detail: $detail",
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     if (probabilities != null)
                       ...probabilities!.entries.map((entry) => Column(
@@ -278,12 +289,11 @@ class _UploadImageScreen extends State<UploadImageScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                fixedSize: const Size(200, 50), // Width: 200, Height: 50
-                textStyle: const TextStyle(fontSize: 16), // Button text size
-                backgroundColor: Colors.blue, // Button background color
+                fixedSize: const Size(200, 30),
+                textStyle: const TextStyle(fontSize: 16),
+                backgroundColor: Colors.green,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(30), // Rounded corner radius
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
               child: const Text(
