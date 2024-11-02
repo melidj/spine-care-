@@ -1,13 +1,8 @@
 import 'package:app/screen/imageupload.dart';
-import 'package:app/screen/result.dart';
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
 
 class UploadSuccessScreen extends StatelessWidget {
-  final Uint8List? _imageBytes;
-
-  const UploadSuccessScreen({super.key, required Uint8List? imageBytes})
-      : _imageBytes = imageBytes;
+  const UploadSuccessScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +23,11 @@ class UploadSuccessScreen extends StatelessWidget {
         ),
       ),
       body: Center(
-        // Center the entire column
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Minimize Column height
-            crossAxisAlignment:
-                CrossAxisAlignment.center, // Center horizontally
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 'Image Uploaded Successfully!',
@@ -45,33 +38,10 @@ class UploadSuccessScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
-              Container(
-                height: 400,
-                width: 320,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(color: Colors.blue, width: 2),
-                  image: _imageBytes != null
-                      ? DecorationImage(
-                          image: MemoryImage(_imageBytes!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-              ),
+              Container(),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DiagnosisResultScreen(
-                        imageBytes: _imageBytes,
-                        resultData: {},
-                      ),
-                    ),
-                  );
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   fixedSize: const Size(200, 50),
