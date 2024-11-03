@@ -1,5 +1,5 @@
 import 'package:app/screen/firstaid.dart';
-import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
@@ -145,8 +145,7 @@ class _UploadImageScreen extends State<UploadImageScreen> {
             ),
             const SizedBox(height: 10),
             const Text(
-              'Upload a photo of your X-ray/MRI for the most accurate diagnosis. '
-              'You can also take a picture, but this may result in lower accuracy.',
+              'Upload a photo of your X-ray/MRI for the most accurate diagnosis. ',
               style: TextStyle(fontSize: 12, color: Colors.black54),
               textAlign: TextAlign.center,
             ),
@@ -180,32 +179,6 @@ class _UploadImageScreen extends State<UploadImageScreen> {
             ),
 
             const SizedBox(height: 20),
-            const Row(
-              children: [
-                Expanded(child: Divider()),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text('or', style: TextStyle(color: Colors.black45)),
-                ),
-                Expanded(child: Divider()),
-              ],
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.camera_alt, color: Colors.blue),
-              label: const Text(
-                'Open Camera & Take Photo',
-                style: TextStyle(color: Colors.blue),
-              ),
-              style: OutlinedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                side: const BorderSide(color: Colors.blue, width: 2),
-              ),
-            ),
-
-            const SizedBox(height: 10),
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
